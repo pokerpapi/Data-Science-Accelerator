@@ -1,0 +1,294 @@
+# Week 4
+# 20.3.5
+# Question 1
+
+from ?is.finite
+is.finite returns a vector of the same length as x the jth element of which is TRUE if x[j] is finite (i.e., it is not one of the values NA, NaN, Inf or -Inf) and FALSE otherwise. 
+Complex numbers are finite if both the real and imaginary parts are.
+
+is.infinite returns a vector of the same length as x the jth element of which is TRUE if x[j] is infinite (i.e., equal to one of Inf or -Inf) and FALSE otherwise. 
+This will be false unless x is numeric or complex. Complex numbers are infinite if either the real or the imaginary part is.
+
+# Question 2
+dplyr::near
+function (x, y, tol = .Machine$double.eps^0.5) 
+{
+    abs(x - y) < tol
+}
+#Instead of checking for exact equality, it checks that two numbers are within a certain tolerance, `tol`.
+By default the tolerance is set to the square root of `.Machine$double.eps^0.5` when i checked the source code. Threshold can be changed.
+
+#Question 3
+
+#A logical vector can take 3 possible values. How many possible values can an integer vector take? How many possible values can a double take? Use google to do some research.
+
+?integer
+Note that current implementations of R use 32-bit integers for integer vectors, so the range of representable integers is restricted to about +/-2*10^9: doubles can hold much larger integers exactly.
+
+?double
+All R platforms are required to work with values conforming to the IEC 60559 (also known as IEEE 754) standard. 
+This basically works with a precision of 53 bits, and represents to that precision a range of absolute values from about 2e-308 to 2e+308. 
+It also has special values NaN (many of them), plus and minus infinity and plus and minus zero (although R acts as if these are the same). 
+There are also denormal(ized) (or subnormal) numbers with absolute values above or below the range given above but represented to less precision.
+
+In IEEE 754-2008/IEC60559:2011 this is called ‘binary64’ format. 
+
+#Question 4
+as.integer, truncating or rounding to the nearest integer, 
+
+
+#20.4.6.1
+mean(is.na(x)) calculates the proportion of missing values (values equal to NA) in a vector.
+
+mean(is.na(x))
+
+sum(!is.finite(x)) calculates the number of elements in the vector that are equal to missing (NA), not-a-number (NaN), or inifinity (Inf).
+
+sum(!is.finite(x))
+
+#20.4.6.2
+is.vector() only checks whether the object has no attributes other than names. the list is a vector
+
+is.atomic() explicitly checks whether an object is one of the atomic types (“logical”, “integer”, “numeric”, “complex”, “character”, and “raw”) or NULL.
+
+#20.4.6.3
+setNames
+function (object = nm, nm) 
+{
+    names(object) <- nm
+    object
+}
+<bytecode: 0x0000000017916000>
+<environment: namespace:stats>
+
+
+purrr::set_names
+function (x, nm = x, ...) 
+{
+    set_names_impl(x, x, nm, ...)
+}
+<bytecode: 0x0000000006d72eb0>
+<environment: namespace:rlang>
+
+set_names x has to be a vector, and lenght of object and names must be the same.
+set_names allows for using a function or formula to transform the existing names.
+setNames will allow the names to be shorter than the vector being
+named, and will set the missing names to NA
+
+#20.4.6.4
+1. last_val <- function(x) {
+  if (length(x)) {
+    x[[length(x)]]  
+  } else {
+    x
+  }
+}
+last_val(numeric())
+
+
+2. even_elements <- function(x) {
+  if (length(x)) {
+    x[seq_along(x) %% 2 == 0]
+  } else {
+    x
+  }  
+}
+even_evenelements(numeric())
+
+3. not_the_last <- function(x) {
+  x[1:(length(x)-1)]
+}
+not_the_last(x)
+
+4. only_even_numbers <- function(x) {
+  x[x %% 2 == 0]
+}
+only_even_numbers()
+
+#20.4.6.5
+Why is x[-which(x > 0)] not the same as x[x <= 0]?
+
+the way that they treat missing values is different. Na and NaN
+
+#20.4.6.6
+What happens when you subset with a positive integer that’s bigger than the length of the vector? returns a vector of missing values NA
+What happens when you subset with a name that doesn’t exist? same thing NA for names not in the vector's names
+
+#20.5.4.1
+
+Skipping I couldnt draw.
+
+#20.5.4.2
+Subsetting a tibble works the same way as a list; a data frame can be considered as a list of columns. 
+Difference between a list and a tibble is that all the elements (columns) of a tibble must have the same length (number of rows). 
+Lists can have vectors with different lengths as elements.
+
+
+#21.2.1.1
+
+cars_means <- vector("double",length = ncol(mtcars))
+for(i in seq_along(mtcars)){
+  cars_means[[i]] <- mean(mtcars[[i]])
+}
+cars_means
+
+#21.2.1.2
+data("flights", package = "nycflights13")
+output <- vector("list", ncol(flights))
+names(output) <- names(flights)
+for (i in names(flights)) {
+  output[[i]] <- class(flights[[i]])
+}
+output
+
+
+#21.2.1.3
+uniqe_in_col <- vector("integer",ncol(iris))
+names(uniqe_in_col) <- names(iris)
+for(i in seq_along(iris)){
+  uniqe_in_col[[i]] <- length(unique(iris[[i]]))
+}
+uniqe_in_col
+
+#21.2.1.4
+
+means <- c(-10,0,10,100)
+random_norms <- vector("list",length=length(means))
+n <- 10
+names(random_norms) <- means
+for(i in seq_along(random_norms)){
+  random_norms[[i]] <- rnorm(n = n, mean=means[i])
+}
+random_norms
+
+#21.2.1.5
+
+#1
+stringr::str_c(letters, collapse = "")
+
+#2
+x <- sample(100)
+sd(x) #or
+
+#3
+x <- runif(100)
+cumsum(x)
+
+#21.2.1.5
+humps <- c("five", "four", "three", "two", "one", "no")
+for (i in humps) {
+  cat(str_c("Alice the camel has ", rep(i, 3), " humps.",
+             collapse = "\n"), "\n")
+  if (i == "no") {
+    cat("Now Alice is a horse.\n")
+  } else {
+    cat("So go, Alice, go.\n")
+  }
+  cat("\n")
+}
+
+#2
+numbers <- c("ten", "nine", "eight", "seven", "six", "five",
+             "four", "three", "two", "one")
+for (i in numbers) {
+  cat(str_c("There were ", i, " in the bed\n"))
+  cat("and the little one said\n")
+  if (i == "one") {
+    cat("I'm lonely...")
+  } else {
+    cat("Roll over, roll over\n")
+    cat("So they all rolled over and one fell out.\n")
+  }
+  cat("\n")
+}
+
+#3
+bottles <- function(i) {
+  if (i > 2) {
+   bottles <- str_c(i - 1, " bottles")
+  } else if (i == 2) {
+   bottles <- "1 bottle"
+  } else {
+   bottles <- "no more bottles"
+  }
+  bottles
+}
+
+beer_bottles <- function(n) {
+  # should test whether n >= 1.
+  for (i in seq(n, 1)) {
+     cat(str_c(bottles(i), " of beer on the wall, ", bottles(i), " of beer.\n"))
+     cat(str_c("Take one down and pass it around, ", bottles(i - 1),
+                " of beer on the wall.\n\n"))
+  }
+  cat("No more bottles of beer on the wall, no more bottles of beer.\n")
+  cat(str_c("Go to the store and buy some more, ", bottles(n), " of beer on the wall.\n"))
+}
+beer_bottles(3)
+
+
+#21.2.1.4
+
+add_to_vector <- function(n) {
+  output <- vector("integer", 0)
+  for (i in seq_len(n)) {
+    output <- c(output, i)
+  }
+  output  
+}
+microbenchmark(add_to_vector(10000), times = 3)
+
+
+#2
+
+add_to_vector_2 <- function(n) {
+  output <- vector("integer", n)
+  for (i in seq_len(n)) {
+    output[[i]] <- i
+  }
+  output
+}
+microbenchmark(add_to_vector_2(10000), times = 3)
+
+#21.3.5.1
+
+df <- vector("list", length(files))
+for (fname in seq_along(files)) {
+  df[[i]] <- read_csv(files[[i]])
+}
+df <- bind_rows(df)
+
+#21.3.5.2
+
+names(x) will yield NULL if there’s no names, nothing will happen-the for loop will end
+
+
+#21.3.5.3
+
+show_mean <- function(df, digits = 2) {
+  # Get max length of any variable in the dataset
+  maxstr <- max(str_length(names(df)))
+  for (nm in names(df)) {
+    if (is.numeric(df[[nm]])) {
+      cat(str_c(str_pad(str_c(nm, ":"), maxstr + 1L, side = "right"),
+                format(mean(df[[nm]]), digits = digits, nsmall = digits),
+                sep = " "),
+          "\n")
+    }
+  }
+}
+show_mean(iris)
+
+
+#21.5.3
+#1
+map_dbl(mtcars, mean)
+
+#2
+map_chr(nycflights13::flights, typeof)
+
+#3
+length(unique(iris$Species))
+
+#4
+map(c(-10, 0, 10, 100), ~ rnorm(n = 10, mean = .))
